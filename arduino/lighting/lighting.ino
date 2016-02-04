@@ -1,7 +1,7 @@
 #include <Lighting.h>
 #include "XBee.h"
 #include "queue.h"
-#include <SoftwareSerial.h>
+
 
 XBee xbee;
 Queue RxQ;
@@ -58,16 +58,42 @@ void loop(void)
                 int just_msg = checkLen - 17;
                 // 10 is length of "you sent: "
                 //memcpy(outMsg, "you sent: ", 10);
-                memcpy(outMsg, &msgBuff[15], just_msg);
+                
                 //Serial.write(outMsg, just_msg);
                 //Serial.println();
-                int idx = (int)outMsg[0];
-                idx = idx-48;
-                int act = outMsg[1];
-                act = act-48;
-                lighting.update(idx, act);
-                act = lighting.status_switch(idx);
+                memcpy(outMsg, &msgBuff[15], just_msg);
+                if(outMsg[0] == 's'){
+                  
+                   
+                   for(int kin = 0; kin<4; kin++){
+                       int blah = lighting.status_switch(kin);
+                       Serial.println(blah);
+                         if(lighting.status_switch(kin)==1){
+                           outMsg[kin] = '1';
+                           Serial.println("1");
+                         }
+                         else{
+                           outMsg[kin] = '0';
+                           Serial.println("bbbb");
+                         }
+                         
+                   }
+                  frameLen = xbee.Send(outMsg, 4, outFrame, address, 1);
+                  delay(1000);
+                  Serial.write(status_msg, frameLen);
+                  delay(500);
                 
+               }
+                else{
+                  
+                  int idx = (int)outMsg[0];
+                  idx = idx-48;
+                  int act = outMsg[1];
+                  act = act-48;
+                  lighting.update(idx, act);
+                  Serial.println(lighting.status_switch(idx));
+                  act = lighting.status_switch(idx);
+                  
                   switch(idx){
                     case 0:
                       if(act == 1){
@@ -104,13 +130,14 @@ void loop(void)
                     default:
                       break;  
                   }
-                  
+                  frameLen = xbee.Send(outMsg, just_msg, outFrame, address, 0);
+                  delay(1000);
+                  Serial.write(outFrame, frameLen);
+                  delay(500);  
+                }
                 
                 
-                frameLen = xbee.Send(outMsg, just_msg, outFrame, address, 0);
-                delay(1000);
-                Serial.write(outFrame, frameLen);
-                delay(500);
+                
                 i += msgLen;
                 delPos = i; 
                 delay(500);

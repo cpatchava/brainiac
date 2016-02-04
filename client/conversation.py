@@ -2,7 +2,9 @@
 import logging
 from notifier import Notifier
 from brain import Brain
-
+import XBee
+import serial
+from time import sleep
 
 class Conversation(object):
 
@@ -43,6 +45,7 @@ class Conversation(object):
             self._logger.debug("Stopped to listen actively with threshold: %r",
                                threshold)
 
+            #msg = xbee.Receive()   #this is where we get our serial data during downtime
             if input:
                 self.brain.query(input)
             else:
