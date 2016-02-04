@@ -5,7 +5,6 @@ from brain import Brain
 import XBee
 import serial
 from time import sleep
-try_num =0
 
 class Conversation(object):
 
@@ -23,6 +22,7 @@ class Conversation(object):
         """
         self._logger.info("Starting to handle conversation with keyword '%s'.",
                           self.persona)
+        
         while True:
             # Print notifications until empty
             notifications = self.notifier.getAllNotifications()
@@ -49,10 +49,6 @@ class Conversation(object):
             #msg = xbee.Receive()   #this is where we get our serial data during downtime
             if input:
                 self.brain.query(input)
-                try_num=0
             else:
                 self.mic.say("Pardon?")
-                try_num++
-                if(try_num < 2):
-                    self.handleForever()
 
