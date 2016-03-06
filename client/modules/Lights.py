@@ -6,9 +6,14 @@ from client.app_utils import getTimezone
 from semantic.dates import DateService
 import serial
 import time
-ser = serial.Serial("/dev/ttyAMA0",baudrate=9600)
+import sys
+sys.path.insert(0, '../../xbee')
+import XBee 
 
-WORDS = ["TURN", "ON", "LIGHTS"]
+xbee = XBee.XBee("/dev/ttyAMA0") 
+
+WORDS = ["TURN", "ON", "OFF", "MORE", "LIGHT", "LIGHTS", "LESS"]
+status=0
 
 def handle(text, mic, profile):
     """
@@ -20,8 +25,10 @@ def handle(text, mic, profile):
         profile -- contains information related to the user (e.g., phone
                    number)
     """
-    word = "H"
-    ser.write(str(word))
+    if bool(re.search(r'\bon\b', text, re.IGNORECASE)) or bool(re.search(r'\bmore\b', text, re.IGNORECASE)):
+      xbee.Send("01")
+    else:
+      xbee.Send("00")
     message = "Yes, Sir" 
     mic.say(message)
 
@@ -32,4 +39,4 @@ def isValid(text):
         Arguments:
         text -- user-input, typically transcribed speech
     """
-    return bool(re.search(r'\bturn on lights\b', text, re.IGNORECASE))
+    return bool(re.search(r'\bon lights\b', text, re.IGNORECASE)) or bool(re.search(r'\boff lights\b', text, re.IGNORECASE)) or bool(re.search(r'\bmore light\b', text, re.IGNORECASE)) or bool(re.search(r'\bless light\b', text, re.IGNORECASE))

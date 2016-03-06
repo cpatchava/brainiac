@@ -23,6 +23,7 @@ class Conversation(object):
         self._logger.info("Starting to handle conversation with keyword '%s'.",
                           self.persona)
         
+        try_num =0
         while True:
             # Print notifications until empty
             notifications = self.notifier.getAllNotifications()
